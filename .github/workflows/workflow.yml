@@ -1,0 +1,59 @@
+name: My optional workflow name
+# https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#on
+on:
+  # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#push
+  push:
+    #
+    branches: main
+  # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request
+  pull_request:
+    branches: main
+  # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_dispatch
+  workflow_dispatch:
+
+# on: push
+
+# on:
+#   push:
+#     branches: [ main, develop ]
+
+# on: push
+#   push:
+#     branches:
+#       - main
+#       - develop
+
+# https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/using-jobs-in-a-workflow#example-creating-jobs
+jobs:
+  # my_job1:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: (Optional step name) Check out code
+  #       uses: actions/checkout@v4
+  #     - name: (Optional step name) Run a one-line script
+  #       run: echo Hello!
+  #     - name: (Optional step name) Run a multi-line script
+  #       run: |
+  #         echo Hello!
+  #         echo World!
+  my_job1:
+    if: github.event.pull_request.draft == false
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        make:
+          - name: 'flutter check'
+            task2: 'flutter-checks2'
+    runs-on: ${{ matrix.os }}
+    env:
+      flutter_version: '3.22.0'
+      android_sdk_version: '30'
+    steps:
+      - uses: actions/checkout@v4
+  my_job2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "FLUTTER_VERSION=$(cat .fvmrc | jq --raw-output .flutter)" >> $GITHUB_ENV
+      - run: echo ${{ env.FLUTTER_VERSION }}
